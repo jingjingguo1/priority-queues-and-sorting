@@ -1,0 +1,123 @@
+---
+title: "Priority Queues and Sorting"
+author: "Jingjing Guo"
+date: "September 16, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Implementing priority queues and sorting
+### Index of the parent node of element i of the vector: 
+$\lfloor \frac{i}{2} \rfloor$
+Index of left child node of element i: $2i$
+Index of right child node of element i: $2i + 1$
+
+### make_heap to return an empty heap
+```{r}
+make_heap <- function(LMAX) {
+  heap0 <- c(rep(NA, LMAX))
+  return(heap0)
+}
+# example:
+LMAX <- 10
+make_heap(LMAX)
+```
+
+### return the max element of the heap:
+```{r}
+max_heap <- function(heapx){
+  max_element <- heapx[1]
+  return(max_element)
+}
+# example
+heapx = c(5,2,4,2,1)
+max_heap(heapx)
+```
+
+### remove the max element of the heap
+```{r}
+removeMax <- function(H){
+  sizeNewH <- length(H) - 1
+  newH <- H
+  maxVal <- H[1]
+  newH[1] <- newH[sizeNewH+1]
+  newH <- head(newH, -1)
+
+  curPos <- 1
+  curLeftChi <- curPos * 2
+  curRightChi <- curPos * 2 + 1
+
+  while ( curRightChi <= sizeNewH && newH[curPos] < max(newH[c(curLeftChi, curRightChi)]) ){
+    if (newH[curLeftChi] >= newH[curRightChi]){
+      temp <- newH[curLeftChi]
+      newH[curLeftChi] <- newH[curPos]
+      newH[curPos] <- temp
+      curPos <- curLeftChi
+    }else{
+      temp <- newH[curRightChi]
+      newH[curRightChi] <- newH[curPos]
+      newH[curPos] <- temp
+      curPos <- curRightChi
+    }
+    curLeftChi <- curPos * 2
+    curRightChi <- curPos * 2 + 1
+  }
+  if (curLeftChi==sizeNewH && newH[curPos]<newH[curLeftChi] ){
+    temp <- newH[curLeftChi]
+    newH[curLeftChi] <- newH[curPos]
+    newH[curPos] <- temp
+    curPos <- curLeftChi 
+  }
+  return(newH)
+}
+
+H <- c(10,6,9,4,5,8,2)
+newH <- removeMax(H)
+newH
+```
+### insert a new element
+```{r}
+insert <- function(H,num){
+  newH <- H
+  sizeH <- length(newH)
+  newH[sizeH+1] <- num
+  curPos <- sizeH + 1
+  curPar <- floor(curPos/2)
+  while(curPar > 0 && num > newH[curPar]){
+    temp <- newH[curPar]
+    newH[curPar] <- newH[curPos]
+    newH[curPos] <- temp    
+    curPos <- curPar
+    curPar <- floor(curPos/2)
+  }
+return(newH)
+}
+
+H <- c(10,6,9,4,5,8,2)
+insert(H,6)
+```
+
+### Sort 20 random numbers
+```{r}
+heap_sort <- function(numList){
+  N <- length(numList)
+  newH <- c()
+  sorted_list <- rep(0,N)
+  for(num in numList){
+    newH <- insert(newH, num)
+  }
+  i <- 1
+  while(i<=N){
+    sorted_list[i] <- max_heap(newH)
+    newH <- removeMax(newH)
+    i <- i + 1
+  }
+  return(sorted_list)
+}
+
+numList <- rnorm(20)
+numList
+heap_sort(numList)
+```
